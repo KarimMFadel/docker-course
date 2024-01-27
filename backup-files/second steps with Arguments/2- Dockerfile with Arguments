@@ -1,0 +1,45 @@
+FROM node:16-alpine
+# FROM baseImage
+
+# create folder to copy the files into it
+# every command will run into this path
+WORKDIR /app
+
+# COPY package.json /app/
+# copy the package.json separately for optimization
+# to avoid CALL/RUN the next step of (RUN npm install) again
+#           => because we don't make many change on package.json
+#           => so this step (COPY package.json .) will be cached
+#           => and also the next step (RUN npm install) will be cached 
+COPY package.json .
+
+# dockerfile can recieve value for this argument to determine which environment
+# this value is come from docker-compose
+# ARG NODE_ENV=production  # can add default value 
+ARG NODE_ENV
+
+# to run and install dependencies to create the node_modeules folder
+RUN if [ "${NODE_ENV}" = "production" ]; \
+    then npm install --only=production; \
+    else npm install; \
+    fi
+
+
+# copy all other files into the container
+# ***** but add unneeded files on .dockerignore like (node_models, Dockerfile, ....etc)
+# COPY . .
+# or copy the needed files
+# COPY index.js . 
+COPY . .
+
+# environment variables
+#ENV PORT=4000
+
+# Define the network ports that this container will listen on at runtime.
+# just for Docummentation!!!!
+# EXPOSE 4000
+# will use env variable
+EXPOSE $PORT 
+
+#run app
+CMD [ "npm", "run", "start-dev" ]
