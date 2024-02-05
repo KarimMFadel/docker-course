@@ -19,8 +19,24 @@ docker exec -it express-node-app-container bash          # execute command insid
                                                          # bash OR /bin/sh is the command that we need to run inside the cpntainer
                                                          # -it interactive terminal  (to give us a terminal on this container )
 
+# Run an instance of kodekloud/simple-webapp with a tag blue and map port 8080 on the container to 38282 on the host.
+docker run --label blue -p 38282:8080 -d kodekloud/simple-webapp:blue
+
 docker exec -it express-node-app-container /bin/sh
 docker run --name express-node-app-container -v /home/karimfadel/mypersonaldata/MyWork/workspaces/Learning/docker/node-app:/app -d -p 4000:4000 express-node-app
+
+# Delete all containers from the Docker Host.
+docker stop $(docker ps -a -q)
+docker rm $(docker ps -a -q)
+
+# Delete all images on the host
+docker rmi -f $(docker images -aq)
+
+# Delete the ubuntu Image.
+docker image rm ubuntu
+
+# pull a docker image
+docker pull nginx:1.14-alpine
 ```
 
 ## Volume -v
@@ -154,6 +170,11 @@ docker volume prune       # remove all volumes that don't any containers use the
 
 docker exec -it node-app_mongo_1 bash
 docker exec -it node-app_mongo_1 mongosh -u root -p example
+```
+
+What is the base Operating System used by the python:3.6 image?
+```markdown
+docker run python:3.6  cat /etc/*release*
 ```
 
 ## References
