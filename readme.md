@@ -7,6 +7,8 @@ Dockerfile ----Build---->  Image  ------RUN------> many containers
 ```markdown
 docker build -t express-node-app .  # -t tag for the new image
                                     # .  path of Dockerfile
+docker build -t webapp-color:lite . # name => webapp-color
+                                    # tag => lite
 
 docker image ls
 docker ps   # display all container
@@ -35,6 +37,9 @@ docker rmi -f $(docker images -aq)
 # Delete the ubuntu Image.
 docker image rm ubuntu
 
+# Let's remove all the dangling images we have locally. Use docker image prune -a to remove them
+docker image prune -a
+
 # pull a docker image
 docker pull nginx:1.14-alpine
 ```
@@ -50,6 +55,10 @@ docker pull nginx:1.14-alpine
   every change in one dir wil affect in another and virse vise
 
   ```markdown
+   docker volume ls
+   docker volume rm <volume-name>  # remove spacific volume
+   docker volume prune       # remove all volumes that don't any containers use these
+
    docker run -v host_dir:container_dir
    docker run -v /usr/karim.fadel/workspace/projectNode:/var/lib/mysql/data
    docker run -v $(pwd):/var/lib/mysql/data                     # -v %cd%:/app     for windows
@@ -135,6 +144,9 @@ docker run --name express-node-app-container -v $(pwd)/src:/app/src:ro --env POR
 
 Or from command and use ,env file
 
+-- Inspect the environment variables set on the running container
+docker exec c5fc21be79a0 env
+
 ```markdown
 docker run --name express-node-app-container -v $(pwd)/src:/app/src:ro --env-file ./.env  -d -p 4000:4000 express-node-app
 
@@ -164,18 +176,25 @@ By default when docker-compose try to operate 2 or more 2 container, it create a
 docker network ls
 docker network inspect <network_name>
 
-docker volume ls
-docker volume rm <volume-name>  # remove spacific volume
-docker volume prune       # remove all volumes that don't any containers use these
-
 docker exec -it node-app_mongo_1 bash
 docker exec -it node-app_mongo_1 mongosh -u root -p example
+
+# Run a container named alpine-2 using the alpine image and attach it to the none network.
+docker run --name alpine-2 --network=none -d alpine
+
+# Create a new network named wp-mysql-network using the bridge driver. Allocate subnet 182.18.0.1/24. Configure Gateway 182.18.0.1
+docker network create --gateway=182.18.0.1 --subnet=182.18.0.1/24 --driver=bridge wp-mysql-network
+# Deploy a mysql database using the mysql:5.6 image and name it mysql-db. Attach it to the newly created network wp-mysql-network
+docker run --name=mysql-db --env MYSQL_ROOT_PASSWORD=db_pass123 --network=wp-mysql-network -d mysql:5.6
 ```
 
 What is the base Operating System used by the python:3.6 image?
 ```markdown
 docker run python:3.6  cat /etc/*release*
 ```
+
+** Run a registry server with name equals to my-registry using registry:2 image with host port set to 5000, and restart policy set to always
+docker run --restart always --name=my-registry -p 5000:5000 -d registry:2
 
 ## References
 
